@@ -1,0 +1,11 @@
+{
+  "additionalFiles": "\\RomiController.h,\\build\\preproc\\ctags_target_for_gcc_minus_e.cpp,\\build\\sketch\\RomiController.cpp.cpp,\\build\\sketch\\RomiController.h,\\build\\sketch\\build\\sketch\\RomiController.cpp.cpp",
+  "builtInLibrariesFolders": "G:\\Program Files (x86)\\Arduino\\libraries",
+  "customBuildProperties": "build.path=g:\\OnedriveBusiness\\OneDrive - University of Bristol\\Documents\\Arduino\\roboticSystems\\RobotControl\\build,build.warn_data_percentage=75,runtime.tools.avrdude.path=G:\\Program Files (x86)\\Arduino\\hardware\\tools\\avr,runtime.tools.avrdude-6.3.0-arduino14.path=G:\\Program Files (x86)\\Arduino\\hardware\\tools\\avr,runtime.tools.arduinoOTA.path=G:\\Program Files (x86)\\Arduino\\hardware\\tools\\avr,runtime.tools.arduinoOTA-1.2.1.path=G:\\Program Files (x86)\\Arduino\\hardware\\tools\\avr,runtime.tools.avr-gcc.path=G:\\Program Files (x86)\\Arduino\\hardware\\tools\\avr,runtime.tools.avr-gcc-5.4.0-atmel3.6.1-arduino2.path=G:\\Program Files (x86)\\Arduino\\hardware\\tools\\avr",
+  "fqbn": "pololu-a-star:avr:a-star32U4",
+  "hardwareFolders": "G:\\Program Files (x86)\\Arduino\\hardware,C:\\Users\\Mickey\\AppData\\Local\\Arduino15\\packages",
+  "otherLibrariesFolders": "D:\\Documents\\Arduino\\libraries",
+  "runtime.ide.version": "10808",
+  "sketchLocation": "g:\\OnedriveBusiness\\OneDrive - University of Bristol\\Documents\\Arduino\\roboticSystems\\RobotControl\\RomiController.cpp",
+  "toolsFolders": "G:\\Program Files (x86)\\Arduino\\tools-builder,G:\\Program Files (x86)\\Arduino\\hardware\\tools\\avr,C:\\Users\\Mickey\\AppData\\Local\\Arduino15\\packages"
+}
