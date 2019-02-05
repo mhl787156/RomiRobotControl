@@ -11,13 +11,14 @@ Romi robot;
 void setup() {
     Serial.begin(BAUD_RATE);
     Serial.println("***RESET***");
+    delay(5000);
 
-    delay(500);
-    // robot = new Romi();
-    robot.setSpeed(20.0);
+    robot.setSpeed(50.0);
 }
 
 void loop() {
     delay(1000);
     robot.moveForward(10.0);
+    Serial.println("moving");
+    while (true) {} // block 
 }
