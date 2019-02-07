@@ -17,7 +17,9 @@ void Romi::moveForward(float dist) {
     Serial.print("\n");
     right_motor->setSpeed(speed);
     left_motor->setSpeed(speed);
-    delay((int) (dist/speed));
+    float k = dist/speed;
+    Serial.println(k);
+    delay(1000);
     right_motor->stop();
     left_motor->stop();
 }
