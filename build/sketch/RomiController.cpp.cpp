@@ -9,25 +9,19 @@ void loop();
 #include "RomiController.h"
 
 Romi::Romi() {
-    right_motor = new RomiMotor(LEFT_SPEED_PIN, LEFT_DIR_PIN);
-    left_motor = new RomiMotor(RIGHT_SPEED_PIN, RIGHT_DIR_PIN);
+
 }
 
 void Romi::setSpeed(float new_speed) {
-    float truncated_speed = constrain(new_speed, -max_speed, max_speed);
-    speed = (int) (max_speed * truncated_speed / 100.0);
-    Serial.println(speed);
+    motors.setSpeed(new_speed);
+    Serial.println(motors.getSpeed());
 }
 
 void Romi::moveForward(float dist) {
     Serial.print("moving motors ");
-    Serial.print(speed);
+    Serial.print(motors.getSpeed());
     Serial.print("\n");
-    right_motor->setSpeed(speed);
-    left_motor->setSpeed(speed);
-    delay((int) (dist/speed));
-    right_motor->stop();
-    left_motor->stop();
+    motors.moveForward(dist);
 }
 #line 1 "d:\\Documents\\coding_ground\\Arduino\\RomiRobotControl\\src\\main.ino"
 // #include <Romi32U4.h>   // Romi
@@ -49,8 +43,13 @@ void setup() {
 }
 
 void loop() {
-    delay(1000);
-    robot.moveForward(10.0);
-    Serial.println("moving");
-    while (true) {} // block 
+    robot.readEncoders();
+    // for(int i = 0; i < 10; i++){
+        
+    //     robot.moveForward(2.5);
+    delay(10);
+    // }
+        
+    // Serial.println("bottom of loop");
+    // while (true) {} // block 
 }

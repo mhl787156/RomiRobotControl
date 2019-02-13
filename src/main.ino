@@ -17,8 +17,13 @@ void setup() {
 }
 
 void loop() {
-    delay(1000);
-    robot.moveForward(10.0);
-    Serial.println("moving");
-    while (true) {} // block 
+    robot.readEncoders();
+    // for(int i = 0; i < 10; i++){
+        
+    //     robot.moveForward(2.5);
+    delay(10);
+    // }
+        
+    // Serial.println("bottom of loop");
+    // while (true) {} // block 
 }
