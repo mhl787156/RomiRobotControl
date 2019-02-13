@@ -21,6 +21,7 @@ class RomiMotors {
         void setSpeed(float speed); 
         int getSpeed() {return speed;}
 
+        void moveForward(float dist, float speed);
         void moveForward(float dist);
         void rotateLeft(float degAngle);
 

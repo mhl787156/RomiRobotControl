@@ -1,27 +1,46 @@
 #include <Arduino.h>
 #line 1 "d:\\Documents\\coding_ground\\Arduino\\RomiRobotControl\\src\\RomiController.cpp"
-#line 11 "d:\\Documents\\coding_ground\\Arduino\\RomiRobotControl\\src\\main.ino"
+#line 9 "d:\\Documents\\coding_ground\\Arduino\\RomiRobotControl\\src\\main.ino"
 void setup();
-#line 19 "d:\\Documents\\coding_ground\\Arduino\\RomiRobotControl\\src\\main.ino"
+#line 16 "d:\\Documents\\coding_ground\\Arduino\\RomiRobotControl\\src\\main.ino"
 void loop();
 #line 0 "d:\\Documents\\coding_ground\\Arduino\\RomiRobotControl\\src\\main.ino"
 #line 1 "d:\\Documents\\coding_ground\\Arduino\\RomiRobotControl\\src\\RomiController.cpp"
 #include "RomiController.h"
 
-Romi::Romi() {
 
+namespace Romi {
+
+void init() {
+    x = 0;
+    y = 0;
+    theta = 0;
+
+    RomiEncoders::init();
+    initialised = true;
 }
 
-void Romi::setSpeed(float new_speed) {
-    motors.setSpeed(new_speed);
-    Serial.println(motors.getSpeed());
+void moveForward(float dist, float speed) {
+    motors.moveForward(dist, speed);
+    Serial.println("Moving Forward");
 }
 
-void Romi::moveForward(float dist) {
-    Serial.print("moving motors ");
-    Serial.print(motors.getSpeed());
-    Serial.print("\n");
-    motors.moveForward(dist);
+void rotateLeft(float degrees_angle) {
+    motors.rotateLeft(degrees_angle);
+    Serial.println("Rotating Left");
+}
+
+void readEncoders() {
+    long cl = RomiEncoders::getLeftEncoderCount();
+    long cr = RomiEncoders::getRightEncoderCount();
+    Serial.print(cl);
+    Serial.print(",");
+    Serial.println(cr);
+}
+
+
+
+
 }
 #line 1 "d:\\Documents\\coding_ground\\Arduino\\RomiRobotControl\\src\\main.ino"
 // #include <Romi32U4.h>   // Romi
@@ -32,24 +51,23 @@ void Romi::moveForward(float dist) {
 
 #define BAUD_RATE 9600
 
-Romi robot;
-
 void setup() {
     Serial.begin(BAUD_RATE);
     Serial.println("***RESET***");
     delay(5000);
-
-    robot.setSpeed(50.0);
+    Romi::init();
 }
 
 void loop() {
-    robot.readEncoders();
+    // robot.readEncoders();
     // for(int i = 0; i < 10; i++){
         
-    //     robot.moveForward(2.5);
-    delay(10);
-    // }
         
+    //     delay(10);
+    // }
+    Romi::moveForward(2.5, 50);
+    Romi::readEncoders();
+    delay(10);
     // Serial.println("bottom of loop");
     // while (true) {} // block 
 }

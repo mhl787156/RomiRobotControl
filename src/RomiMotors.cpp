@@ -23,9 +23,10 @@ void RomiMotors::moveForward(float dist) {
     left_motor->stop();
 }
 
-
-
-
+void RomiMotors::moveForward(float dist, float speed) {
+    setSpeed(speed);
+    moveForward(dist);
+}
 
 
 /*
@@ -40,9 +41,9 @@ RomiMotor::RomiMotor(const byte speedPin, const byte dirPin) {
 
 void RomiMotor::setSpeed(int speed) {
     if (speed >= 0) {
-        digitalWrite(dir_pin, HIGH);    
+        digitalWrite(dir_pin, LOW);    
     } else {
-        digitalWrite(dir_pin, LOW);
+        digitalWrite(dir_pin, HIGH);
     }
 
     analogWrite(speed_pin, speed);

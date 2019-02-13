@@ -1,17 +1,36 @@
 #include "RomiController.h"
 
-Romi::Romi() {
 
+namespace Romi {
+
+void init() {
+    x = 0;
+    y = 0;
+    theta = 0;
+
+    RomiEncoders::init();
+    initialised = true;
 }
 
-void Romi::setSpeed(float new_speed) {
-    motors.setSpeed(new_speed);
-    Serial.println(motors.getSpeed());
+void moveForward(float dist, float speed) {
+    motors.moveForward(dist, speed);
+    Serial.println("Moving Forward");
 }
 
-void Romi::moveForward(float dist) {
-    Serial.print("moving motors ");
-    Serial.print(motors.getSpeed());
-    Serial.print("\n");
-    motors.moveForward(dist);
+void rotateLeft(float degrees_angle) {
+    motors.rotateLeft(degrees_angle);
+    Serial.println("Rotating Left");
+}
+
+void readEncoders() {
+    long cl = RomiEncoders::getLeftEncoderCount();
+    long cr = RomiEncoders::getRightEncoderCount();
+    Serial.print(cl);
+    Serial.print(",");
+    Serial.println(cr);
+}
+
+
+
+
 }

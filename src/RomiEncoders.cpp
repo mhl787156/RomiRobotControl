@@ -1,43 +1,46 @@
 #include "RomiEncoders.h"
 
+namespace RomiEncoders {
 
-void checkEncoder(int pin_A, int pin_B, volatile bool& old_A, volatile bool& old_B, volatile long* count) {
-    bool new_B = digitalRead(pin_B);
-    bool new_A = digitalRead(pin_A) ^ new_B;
+void checkLeftEncoder() {
+    bool new_B = PINE & ( 1 << PINE2 ); //reading left B pin
+    bool new_A = digitalRead(left_A_xor_pin) ^ new_B;
     byte state = 0 | (new_A << 3) | (new_B << 2) | 
-                     (old_A << 1) | old_B;
+                     (old_left_A << 1) | old_left_B;
     if (state == 1 || state == 7 || state == 8 || state == 14) {
-        (*count)++;
+        count_left--; // Moving Backwards
     } else if (state == 2 || state == 4 || state == 11 || state == 13) {
-        (*count)--;
+        count_left++; // Moving Forwards
     }
-    Serial.print(new_A);
-    Serial.print(" ");
-    Serial.print(new_B);
-    Serial.print(old_A);
-    Serial.print(" ");
-    Serial.print(old_B);
-    Serial.print("\n");
-    old_A = new_A;
-    old_B = new_B;
+    old_left_A = new_A;
+    old_left_B = new_B;
+}
+
+void checkRightEncoder() {
+    bool new_B = digitalRead(right_B_pin);
+    bool new_A = digitalRead(right_A_xor_pin) ^ new_B;
+    byte state = 0 | (new_A << 3) | (new_B << 2) | 
+                     (old_right_A << 1) | old_right_B;
+    if (state == 1 || state == 7 || state == 8 || state == 14) {
+        count_right--; // Moving Backwards
+    } else if (state == 2 || state == 4 || state == 11 || state == 13) {
+        count_right++; // Moving Forwards
+    }
+    old_right_A = new_A;
+    old_right_B = new_B;
 }
 
 // left encoder interrupt routine
 ISR(PCINT0_vect) {
-    checkEncoder(left_A_xor_pin, left_B_pin, old_left_A, old_left_B, &count_left);
+    checkLeftEncoder();
 }
 
 // right encoder interrupt routine
 ISR(INT6_vect) {
-    checkEncoder(right_A_xor_pin, right_B_pin, old_right_A, old_right_B, &count_right);
+    checkRightEncoder();
 }
 
-RomiEncoders::RomiEncoders() {
-    leftEncoderInterruptSetup();
-    rightEncoderInterruptSetup();
-}
-
-void RomiEncoders::leftEncoderInterruptSetup() {
+void leftEncoderInterruptSetup() {
     count_left = 0;
     old_left_A = false;
     old_left_B = false;
@@ -56,7 +59,7 @@ void RomiEncoders::leftEncoderInterruptSetup() {
     PCICR |= (1 <<PCIE0);
 }
 
-void RomiEncoders::rightEncoderInterruptSetup() {
+void rightEncoderInterruptSetup() {
     pinMode(right_A_xor_pin, INPUT);
     pinMode(right_B_pin, INPUT);
 
@@ -65,10 +68,10 @@ void RomiEncoders::rightEncoderInterruptSetup() {
     old_right_B = false;
 
     // External Interrupt Mask Register EIMSK
-    EIMSK = EIMSK & ~ ( 1 << INT6 );
+    EIMSK = EIMSK & ~( 1 << INT6 );
 
     //External Interrupt Control Register B EICRB
-    EICRB |= (1 << INT6);
+    EICRB |= ( 1 << ISC60 );
 
     //External Interrupt Flag Register EIFR
     EIFR |= (1 << INTF6);
@@ -77,13 +80,46 @@ void RomiEncoders::rightEncoderInterruptSetup() {
     EIMSK |= (1 << INT6);
 }
 
-
-void RomiEncoders::checkLeftEncoder() {
-    checkEncoder(left_A_xor_pin, left_B_pin, old_left_A, old_left_B, &count_left);
-
+void init() {
+    leftEncoderInterruptSetup();
+    rightEncoderInterruptSetup();
 }
 
-void RomiEncoders::checkRightEncoder() {
-    checkEncoder(right_A_xor_pin, right_B_pin, old_right_A, old_right_B, &count_right);
+long getLeftEncoderCount(){
+        cli();
+        long c = count_left;
+        sei();
+        return c;
 }
 
+long getRightEncoderCount(){
+        cli();
+        long c = count_right;
+        sei();
+        return c;
+}
+
+long getAndResetRightEncoderCount() { 
+        cli();
+        long c = count_right;
+        count_right = 0;
+        sei();
+        return c;
+}
+
+long getAndResetLeftEncoderCount() { 
+        cli();
+        long c = count_left;
+        count_left = 0;
+        sei();
+        return c;
+}
+
+void resetEncoderCount() { 
+        cli();
+        count_left = 0;
+        count_right = 0;
+        sei();
+}
+
+}

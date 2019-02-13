@@ -2,36 +2,34 @@
 #define RomiController_h
 
 #include <Arduino.h>
-// #include <Romi32U4.h>  
 
 #include "RomiMotors.h"
 #include "RomiEncoders.h"
 
-class Romi {
+namespace Romi {
 
-    public:
+    bool initialised = false;
 
-        Romi();
-        
-        // Movement
-        void setSpeed(float speed); 
-        void moveForward(float dist);
-        void rotateLeft(float degAngle);
+    // Location of Romi
+    float x;
+    float y;
+    float theta;
 
-        // Encoders
-        void readEncoders() {
-            Serial.println("Encoder Readings");
-            Serial.println(encoders.getLeftEncoderCount());
-            Serial.println(encoders.getRightEncoderCount());
-        }
+    // Parameters of Romi
+    float wheel_radius = 0.035; // m
+    float base_width = 0.14; // m
 
-    private:
-        RomiMotors motors;
-        RomiEncoders encoders;
-
-};
+    RomiMotors motors;
 
 
+    // Functions of Romi
+    void init();
+
+    void moveForward(float dist, float speed);
+    void rotateLeft(float degrees_angle);
+
+    void readEncoders();
+}
 
 
 #endif // RomiController_h
