@@ -5,6 +5,8 @@
 
 namespace RomiEncoders {
 
+const int counts_per_revolution = 12;
+
 static volatile bool old_left_A ;
 static volatile bool old_left_B ;
 static volatile bool old_right_A;

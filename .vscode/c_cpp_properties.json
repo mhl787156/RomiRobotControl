@@ -3,6 +3,7 @@
         {
             "name": "Win32",
             "includePath": [
+                "D:\\Documents\\Arduino\\libraries\\PinChangeInterrupt\\src",
                 "D:\\Documents\\Arduino\\libraries\\Romi32U4",
                 "C:\\Users\\Mickey\\AppData\\Local\\Arduino15\\packages\\pololu-a-star\\hardware\\avr\\4.0.2\\**",
                 "G:\\Program Files (x86)\\Arduino\\tools\\**",

@@ -15,6 +15,8 @@ class RomiMotor {
 
 class RomiMotors {
     public:
+        const int gear_ratio = 120;
+
         RomiMotors();
 
         // set speed as percentage

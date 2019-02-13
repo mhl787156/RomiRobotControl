@@ -18,6 +18,7 @@ namespace Romi {
     // Parameters of Romi
     float wheel_radius = 0.035; // m
     float base_width = 0.14; // m
+    float encoder_step; // m, calculated in init()
 
     RomiMotors motors;
 

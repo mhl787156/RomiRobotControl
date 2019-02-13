@@ -9,6 +9,8 @@ void init() {
     theta = 0;
 
     RomiEncoders::init();
+    encoder_step = (2 * PI * wheel_radius) / (RomiEncoders::counts_per_revolution * motors.gear_ratio);
+
     initialised = true;
 }
 
