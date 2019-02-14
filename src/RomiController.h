@@ -3,8 +3,7 @@
 
 #include <Arduino.h>
 
-#include "RomiMotors.h"
-#include "RomiEncoders.h"
+#include "RomiMotorController.h"
 
 namespace Romi {
 
@@ -18,18 +17,12 @@ namespace Romi {
     // Parameters of Romi
     float wheel_radius = 0.035; // m
     float base_width = 0.14; // m
-    float encoder_step; // m, calculated in init()
+    float speed = 50;
 
-    RomiMotors motors;
+    // Movement
+    RomiMotorController romiMotorControls(wheel_radius);
 
-
-    // Functions of Romi
-    void init();
-
-    void moveForward(float dist, float speed);
-    void rotateLeft(float degrees_angle);
-
-    void readEncoders();
+    bool loopCheck();
 }
 
 

@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 
+
 class RomiMotor {
     public:
         RomiMotor(const byte speed_pin, const byte dir_pin);
@@ -26,6 +27,14 @@ class RomiMotors {
         void moveForward(float dist, float speed);
         void moveForward(float dist);
         void rotateLeft(float degAngle);
+
+        void moveLeft(float speed);
+        void moveRight(float speed);
+        void move(float speed);
+
+        void stopLeft();
+        void stopRight();
+        void stop();
 
     private:
         const int max_speed = 100;

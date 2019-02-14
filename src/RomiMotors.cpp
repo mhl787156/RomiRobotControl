@@ -5,8 +5,8 @@
 BOTH ROMI MOTORS
 */
 RomiMotors::RomiMotors() {
-    right_motor = new RomiMotor(LEFT_SPEED_PIN, LEFT_DIR_PIN);
-    left_motor = new RomiMotor(RIGHT_SPEED_PIN, RIGHT_DIR_PIN);
+    right_motor = new RomiMotor(RIGHT_SPEED_PIN, RIGHT_DIR_PIN);
+    left_motor = new RomiMotor(LEFT_SPEED_PIN, LEFT_DIR_PIN);
 }
 
 void RomiMotors::setSpeed(float new_speed) {
@@ -28,6 +28,32 @@ void RomiMotors::moveForward(float dist, float speed) {
     moveForward(dist);
 }
 
+void RomiMotors::moveLeft(float speed) {
+    left_motor->setSpeed((int)speed);
+}
+
+void RomiMotors::moveRight(float speed) {
+    right_motor->setSpeed((int)speed);
+}
+
+void RomiMotors::move(float speed) {
+    moveLeft(speed);
+    moveRight(speed);
+}
+
+void RomiMotors::stopLeft() {
+    left_motor->stop();
+}
+
+void RomiMotors::stopRight() {
+    right_motor->stop();
+}
+
+void RomiMotors::stop() {
+    stopLeft();
+    stopRight();
+}
+
 
 /*
  SINGLE ROMI MOTOR
@@ -46,7 +72,7 @@ void RomiMotor::setSpeed(int speed) {
         digitalWrite(dir_pin, HIGH);
     }
 
-    analogWrite(speed_pin, speed);
+    analogWrite(speed_pin, abs(speed));
 }
 
 void RomiMotor::stop() {

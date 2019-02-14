@@ -8,31 +8,23 @@ void init() {
     y = 0;
     theta = 0;
 
-    RomiEncoders::init();
-    encoder_step = (2 * PI * wheel_radius) / (RomiEncoders::counts_per_revolution * motors.gear_ratio);
+    // romiMotorControls = RomiMotorController(wheel_radius);
 
     initialised = true;
 }
 
-void moveForward(float dist, float speed) {
-    motors.moveForward(dist, speed);
-    Serial.println("Moving Forward");
+// Runs a delay loop until conditions are true (busy wait)
+bool loopCheck() {
+    while (true) {
+        bool conditions = romiMotorControls.loopCheck();
+
+        if(conditions) {
+            // Serial.println("Finished");
+            break;
+        }
+        delay(10);
+    }
 }
-
-void rotateLeft(float degrees_angle) {
-    motors.rotateLeft(degrees_angle);
-    Serial.println("Rotating Left");
-}
-
-void readEncoders() {
-    long cl = RomiEncoders::getLeftEncoderCount();
-    long cr = RomiEncoders::getRightEncoderCount();
-    Serial.print(cl);
-    Serial.print(",");
-    Serial.println(cr);
-}
-
-
 
 
 }

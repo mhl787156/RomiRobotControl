@@ -6,6 +6,18 @@
 
 #define BAUD_RATE 9600
 
+int task = 0;
+const int num_tasks = 2;
+bool (*tasks[num_tasks]) () {
+    [](){return Romi::romiMotorControls.rotateLeft(90);},
+    [](){return Romi::romiMotorControls.moveDistance(0.5);}
+};
+
+
+void terminate() {
+    while(true){};
+}
+
 void setup() {
     Serial.begin(BAUD_RATE);
     Serial.println("***RESET***");
@@ -14,15 +26,23 @@ void setup() {
 }
 
 void loop() {
-    // robot.readEncoders();
-    // for(int i = 0; i < 10; i++){
-        
-        
-    //     delay(10);
-    // }
-    Romi::moveForward(2.5, 50);
-    Romi::readEncoders();
-    delay(10);
-    // Serial.println("bottom of loop");
-    // while (true) {} // block 
+
+    // Check if all tasks run
+    if( task >= num_tasks ) {
+        Serial.println("Tasks Finished");
+        terminate(); // Could also repeat by setting task = 0
+    }
+
+    // Run Current Movement Task
+    if( !(*tasks[task])() ) {
+        Serial.println("Function returned false");
+    }
+
+    Romi::loopCheck();
+    Serial.print(task);
+    Serial.println(" completed");
+
+    delay(5000);
+    task++;
+
 }
