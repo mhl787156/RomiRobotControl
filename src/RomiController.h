@@ -4,6 +4,8 @@
 #include <Arduino.h>
 
 #include "RomiMotorController.h"
+#include "Timer.h"
+
 
 namespace Romi {
 
@@ -15,12 +17,15 @@ namespace Romi {
     float theta;
 
     // Parameters of Romi
-    float wheel_radius = 0.035; // m
-    float base_width = 0.14; // m
+    float wheel_radius = 35; // mm
+    float base_width = 140; // mm
     float speed = 50;
 
     // Movement
     RomiMotorController romiMotorControls(wheel_radius);
+
+    // Timers
+    // Timers interruptTimer();
 
     bool loopCheck();
 }

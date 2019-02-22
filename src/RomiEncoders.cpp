@@ -12,6 +12,13 @@ void checkLeftEncoder() {
     } else if (state == 2 || state == 4 || state == 11 || state == 13) {
         count_left++; // Moving Forwards
     }
+
+    long curr_micros = micros();
+    long duration_since_last = (curr_micros - left_prev_micros);
+    left_speeds[left_speed_idx] = 1e6/duration_since_last; //Convert to t/s
+    left_prev_micros = curr_micros;
+    left_speed_idx = (left_speed_idx+1)%num_speed_history;
+
     old_left_A = new_A;
     old_left_B = new_B;
 }
@@ -26,6 +33,13 @@ void checkRightEncoder() {
     } else if (state == 2 || state == 4 || state == 11 || state == 13) {
         count_right++; // Moving Forwards
     }
+
+    long curr_micros = micros();
+    long duration_since_last = curr_micros - right_prev_micros;
+    right_speeds[right_speed_idx] = 1e6/duration_since_last; //Convert to t/s
+    right_prev_micros = curr_micros;
+    right_speed_idx = (right_speed_idx+1)%num_speed_history;
+
     old_right_A = new_A;
     old_right_B = new_B;
 }
@@ -41,10 +55,6 @@ ISR(INT6_vect) {
 }
 
 void leftEncoderInterruptSetup() {
-    count_left = 0;
-    old_left_A = false;
-    old_left_B = false;
-
     // Set Direct Data Register to use pin B
     DDRE = DDRE & ~(1<<DDE6);
     // Setup pin B
@@ -62,10 +72,6 @@ void leftEncoderInterruptSetup() {
 void rightEncoderInterruptSetup() {
     pinMode(right_A_xor_pin, INPUT);
     pinMode(right_B_pin, INPUT);
-
-    count_right = 0;
-    old_right_A = false;
-    old_right_B = false;
 
     // External Interrupt Mask Register EIMSK
     EIMSK = EIMSK & ~( 1 << INT6 );
@@ -122,4 +128,23 @@ void resetEncoderCount() {
         sei();
 }
 
+float getLeftTickSpeed() {
+    cli();
+    float s = 0;
+    for(int i = 0; i < num_speed_history; i++) {
+        s += left_speeds[i];
+    }
+    sei();
+    return s/num_speed_history;
+}
+
+float getRightTickSpeed() {
+    cli();
+    float s = 0;
+    for(int i = 0; i < num_speed_history; i++) {
+        s += right_speeds[i];
+    }
+    sei();
+    return s/num_speed_history;
+}
 }

@@ -9,6 +9,8 @@ void init() {
     theta = 0;
 
     // romiMotorControls = RomiMotorController(wheel_radius);
+    // timer.setTimer3func(&loopCheck)
+    // timer.initTimer3(100) // Run LoopCheck at 100 times
 
     initialised = true;
 }
@@ -19,7 +21,7 @@ bool loopCheck() {
         bool conditions = romiMotorControls.loopCheck();
 
         if(conditions) {
-            // Serial.println("Finished");
+            Serial.println("Finished");
             break;
         }
         delay(10);

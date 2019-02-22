@@ -2,5 +2,6 @@
     "sketch": "src\\main.ino",
     "board": "pololu-a-star:avr:a-star32U4",
     "port": "COM6",
-    "output": "build"
+    "output": "build",
+    "arduino.logLevel" : "verbose"
 }

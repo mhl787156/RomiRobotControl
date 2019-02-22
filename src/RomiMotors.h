@@ -8,10 +8,12 @@ class RomiMotor {
     public:
         RomiMotor(const byte speed_pin, const byte dir_pin);
         void setSpeed(int speed);
+        int getDirection() {return direction;}
         void stop();
     private:
         byte speed_pin;
         byte dir_pin;
+        int direction;
 };
 
 class RomiMotors {
@@ -21,12 +23,12 @@ class RomiMotors {
         RomiMotors();
 
         // set speed as percentage
-        void setSpeed(float speed); 
-        int getSpeed() {return speed;}
+        // void setSpeed(float speed); 
+        // int getSpeed() {return speed;}
 
-        void moveForward(float dist, float speed);
-        void moveForward(float dist);
-        void rotateLeft(float degAngle);
+        // void moveForward(float dist, float speed);
+        // void moveForward(float dist);
+        // void rotateLeft(float degAngle);
 
         void moveLeft(float speed);
         void moveRight(float speed);
@@ -36,8 +38,11 @@ class RomiMotors {
         void stopRight();
         void stop();
 
+        int leftDirection(); 
+        int rightDirection();
+
     private:
-        const int max_speed = 100;
+        const int max_pwm = 250;
         int speed; //value between -100 and 100
 
         const byte LEFT_SPEED_PIN = 10;
