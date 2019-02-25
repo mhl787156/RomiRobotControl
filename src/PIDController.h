@@ -32,6 +32,7 @@ class PID
     void setGains(float P, float D, float I); // This function updates the values of the gains
     void reset(); //This function resets any stored values used by the integral or derative terms
     float update(float demand, float measurement); //This function calculates the PID control signal. It should be called in a loop
+    bool settled(float demand, float measurement); // This function returns true if the loop has detected settling
     void print_components(); //This function prints the individual components of the control signal and can be used for debugging
     void setMax(float  newMax); //This function sets the maximum output the controller can ask for
     void setDebug(bool state); //This function sets the debug flag;
@@ -59,6 +60,7 @@ class PID
 
     //Values to store
     float last_error=0; //For calculating the derivative term
+    float last_delta=0;
     float integral_error=0; //For storing the integral of the error
     long last_millis = 0;
     bool debug=false; //This flag controls whether we print the contributions of each component when update is called

@@ -19,11 +19,11 @@
  */
 void PID::print_components()
 {
-  Serial.print("Proportional component: ");
+  Serial.print(" P: ");
   Serial.print(Kp_output);
-  Serial.print(" Differential component: ");
+  Serial.print(" D: ");
   Serial.print(Kd_output);
-  Serial.print(" Integral component: ");
+  Serial.print(" I: ");
   Serial.print(Ki_output);
   Serial.print(" Total: ");
   Serial.println(total);
@@ -65,6 +65,8 @@ float PID::update(float demand, float measurement)
 
   //This represents the error derivative
   float error_delta = (error - last_error) / time_delta;
+  last_error = error;
+  last_delta = error_delta;
 
   //Update storage
   integral_error = integral_error + error;
@@ -83,27 +85,33 @@ float PID::update(float demand, float measurement)
   total = Kp_output + Kd_output + Ki_output;
 
   //Make sure we don't exceed the maximum output
-  if (total > max_output)
-  {
-    total = max_output;
-  }
-
-  if (total < -max_output)
-  {
-    total = -max_output;
-  }
+  total = constrain(total, -max_output, max_output);
 
   //Print debugging information if required
   if (debug)
   {
     Serial.print("Error: ");
     Serial.print(error);
-    Serial.print(" Error Delta");
-    Serial.println(error_delta);
+    Serial.print(" Delta: ");
+    Serial.print(error_delta);
     print_components();
   }
   
   return total;
+}
+
+bool PID::settled(float demand, float measurement) {
+  long time_now = millis();
+  int time_delta = time_now - last_millis;
+  float error = demand - measurement;
+  float error_delta = (error - last_error) / time_delta;
+  return (error_delta - last_delta) == 0;
+}
+
+void PID::reset() {
+  integral_error = 0;
+  last_delta = 0;
+  last_error = 0;
 }
 
 void PID::setMax(float newMax)

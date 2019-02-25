@@ -2,24 +2,25 @@
 #include "MotorController.h"
 
 #define BAUD_RATE 9600
+#define DEBUG false
 
 void setup()
 {
 	Serial.begin(BAUD_RATE);
     delay(5000);
     mcMotorControllerInit(35);
-    mcSetPIDGains(0.3, 0.00, 0.04, 0.3, 0, 0.04);
-    mcSetDebug(debug);
+    mcSetPIDGains(0.5, 0, 14, 0.5, 0, 15);// 0.5, 0, 13, 0.5, 0, 14
+    mcSetDebug(true);
     Serial.println("Init Complete");
 }
 
 void loop()
 {
     Serial.println("Moving Forward");
-    mcMoveDistance(500); 
+    mcMoveDistance(300); 
     mcWaitDelayMoving(10);
 
-    mcRotateLeft(90);
+    mcRotateLeft(180);
     mcWaitDelayMoving(10);
 
     Serial.println("Finished Moving");
