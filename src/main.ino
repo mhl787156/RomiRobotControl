@@ -1,34 +1,45 @@
 #include <Arduino.h>
-#include "MotorController.h"
+#include "RomiRobot.h"
 
 #define BAUD_RATE 9600
-#define DEBUG false
+#define DEBUG 1 // Off:0, Robot MEssages Only: 1 // Low Level PID Messages: 2
 
 void setup()
 {
 	Serial.begin(BAUD_RATE);
     delay(5000);
-    mcMotorControllerInit(35);
-    mcSetPIDGains(0.5, 0, 14, 0.5, 0, 15);// 0.5, 0, 13, 0.5, 0, 14
-    mcSetDebug(true);
+
+    RomiInit(DEBUG);
+
     Serial.println("Init Complete");
 }
 
 void loop()
-{
-    Serial.println("Moving Forward");
-    mcMoveDistance(300); 
-    mcWaitDelayMoving(10);
+{   
+    byte button = RomiWhichButtonPressed();
 
-    mcRotateLeft(180);
-    mcWaitDelayMoving(10);
+    if(button == 1) {
+        delay(1000);
+        RomiMoveDistance(300);
+        RomiRotateLeft(45);
+        RomiMoveDistance(200);
+        RomiRotateLeft(-60);
+        RomiMoveDistance(200);
+        // RomiNavigateTo(500, 500);
+        RomiGoHome();
+        
+    } else if(button == 2) {
+        delay(1000);
+        RomiMoveDistance(1500);
+        RomiGoHome();
 
-    Serial.println("Finished Moving");
-    delay(3000);
+    } else if (button == 3) {
+        delay(1000);
+    }
 
-    // mcRotateLeft(90);
-    // mcWaitDelayMoving(10);
-
-    // delay(1000);
-    // while(true){}
+    if(button != 0) {
+        Serial.print("Completed Trajectory ");
+        Serial.println(button);
+    }
+    delay(100);
 }

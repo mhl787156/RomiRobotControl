@@ -29,9 +29,9 @@ void mcSetPIDGains(float _lkp, float _lki, float _lkd, float _rkp, float _rki, f
 }
 
 void mcSetDebug(bool _debug) {
-    debug = _debug;
+    mc_debug = _debug;
     left_encoder_pid.setDebug(_debug);
-    // right_encoder_pid.setDebug(_debug);
+    right_encoder_pid.setDebug(_debug);
 }
 
 
@@ -44,7 +44,7 @@ bool mcMoveDistance(float dist){
 // Rotate Left
 bool mcRotateLeft(float deg){
     float err = 0;
-    float dist_in_counts = (long) (2 * mc_counts_per_wheel_revolution * ((deg+err)/ 360));
+    float dist_in_counts = (long) (mc_counts_per_wheel_revolution * ((deg+err)/ 180));
     return _mcMoveCounts(-dist_in_counts, dist_in_counts);
 }
 
@@ -53,6 +53,21 @@ bool mcStopMotors(){
     mStopMotors();
     mc_robot_moving = false;
     return true;
+}
+
+// Get Final Counts and translate into distance moved
+float mcGetDistanceLeft() {
+    cli();
+    float v = (mc_left_encoder_target_count - mc_left_error) * mc_encoder_step;
+    sei();
+    return v;
+}
+
+float mcGetDistanceRight(){
+    cli();
+    float v = (mc_right_encoder_target_count - mc_right_error) * mc_encoder_step;
+    sei();
+    return v;
 }
 
 // Is Robot Moving
@@ -67,15 +82,17 @@ void mcWaitDelayMoving(int dly) {
 
 // Reset Target Counters and timers
 void _mcResetCounters(long left = 0, long right = 0) {
+    unsigned long curr_time = millis();
     cli();
     mc_left_encoder_target_count = left;
     mc_right_encoder_target_count = right;
     left_encoder_pid.reset();
     right_encoder_pid.reset();
-    sei();
-    unsigned long curr_time = millis();
+    mc_left_error = 0;
+    mc_right_error = 0;
     mc_left_mvmt_start_time = curr_time;
     mc_right_mvmt_start_time = curr_time;
+    sei();
 }
 
 // Move a specified number of counts
@@ -94,7 +111,7 @@ bool mcMotorControlLoop() {
                             ||  curr_time - mc_right_mvmt_start_time > mc_mvmt_cut_off_time;
 
         if(time_lim_reached) {
-            Serial.println("Time lim reached");
+            if(mc_debug) {Serial.println("Time lim reached");}
             mcStopMotors();
             return true; // continue on loop
         }
@@ -102,15 +119,16 @@ bool mcMotorControlLoop() {
         // Read Encoder Counts
         long left_count = eGetLeftEncoderCount();
         long right_count = eGetRightEncoderCount();
+        mc_right_error = mc_right_encoder_target_count - right_count;
+        mc_left_error = mc_left_encoder_target_count - left_count;
 
         // PID update
-        float pid_class_left_vel = left_encoder_pid.update(mc_left_encoder_target_count, left_count);
-        float pid_class_right_vel = right_encoder_pid.update(mc_right_encoder_target_count, right_count);
+        float pid_class_left_vel = left_encoder_pid.update(mc_left_error);
+        float pid_class_right_vel = right_encoder_pid.update(mc_right_error);
 
         // PID within dead zone
-        if(left_encoder_pid.settled(mc_left_encoder_target_count, left_count)
-            || right_encoder_pid.settled(mc_right_encoder_target_count, right_count)) {
-            Serial.println("Settled");
+        if(left_encoder_pid.settled(mc_left_error) && right_encoder_pid.settled(mc_right_error)) {
+            if(mc_debug) {Serial.println("Settled");}
             mcStopMotors();
             return true;
         }

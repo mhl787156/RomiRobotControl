@@ -7,7 +7,7 @@
 #include "Timer.h"
 #include "PIDController.h"
 
-static bool debug = false;
+static bool mc_debug = false;
 
 static float mc_wheel_radius = 0;
 static int mc_counts_per_wheel_revolution = 0;
@@ -29,6 +29,8 @@ static volatile long mc_left_encoder_target_count = 0;
 static volatile long mc_right_encoder_target_count = 0;
 static volatile PID left_encoder_pid(0,0,0);
 static volatile PID right_encoder_pid(0,0,0);
+static volatile int mc_left_error = 0;
+static volatile int mc_right_error = 0;
 
 // Initialisation
 void mcMotorControllerInit(float wheel_radius);
@@ -41,6 +43,8 @@ bool mcRotateLeft(float deg); // Degrees
 bool mcStopMotors();
 bool mcIsMoving();
 void mcWaitDelayMoving(int dly);
+float mcGetDistanceLeft();
+float mcGetDistanceRight();
 
 bool _mcMoveCounts(long left, long right);
 void _mcResetCounters(long left, long right);

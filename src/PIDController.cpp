@@ -47,7 +47,7 @@ void PID::setGains(float P, float D, float I)
  * combined with other control outputs
  * or sent as input to another controller
  */
-float PID::update(float demand, float measurement)
+float PID::update(float error)
 {
   //Calculate how much time (in milliseconds) has passed since the last update call
   long time_now = millis();
@@ -61,7 +61,7 @@ float PID::update(float demand, float measurement)
    */
 
   //This represents the error term
-  float error = demand - measurement;
+  // float error = demand - measurement;
 
   //This represents the error derivative
   float error_delta = (error - last_error) / time_delta;
@@ -100,10 +100,10 @@ float PID::update(float demand, float measurement)
   return total;
 }
 
-bool PID::settled(float demand, float measurement) {
+bool PID::settled(float error) {
   long time_now = millis();
   int time_delta = time_now - last_millis;
-  float error = demand - measurement;
+  // float error = demand - measurement;
   float error_delta = (error - last_error) / time_delta;
   return (error_delta - last_delta) == 0;
 }

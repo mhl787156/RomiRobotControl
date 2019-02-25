@@ -31,8 +31,8 @@ class PID
     PID(float P, float D, float I); // This is the class constructor. It is called whenever we create an instance of the PID class 
     void setGains(float P, float D, float I); // This function updates the values of the gains
     void reset(); //This function resets any stored values used by the integral or derative terms
-    float update(float demand, float measurement); //This function calculates the PID control signal. It should be called in a loop
-    bool settled(float demand, float measurement); // This function returns true if the loop has detected settling
+    float update(float error); //This function calculates the PID control signal. It should be called in a loop
+    bool settled(float error); // This function returns true if the loop has detected settling
     void print_components(); //This function prints the individual components of the control signal and can be used for debugging
     void setMax(float  newMax); //This function sets the maximum output the controller can ask for
     void setDebug(bool state); //This function sets the debug flag;
