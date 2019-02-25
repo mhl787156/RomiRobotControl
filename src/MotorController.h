@@ -13,7 +13,7 @@ static float mc_wheel_radius = 0;
 static int mc_counts_per_wheel_revolution = 0;
 static float mc_encoder_step = 0;
 
-static float mc_max_motor_speed = 250;
+static float mc_max_motor_speed = 200;
 static float lki, lkp, lkd = 0.0;
 static float rki, rkp, rkd = 0.0;
 
@@ -35,7 +35,7 @@ static volatile long mc_right_previous_error = 0;
 static volatile unsigned long mc_previous_pid_time = micros();
 
 // Settling time check
-static const int mc_num_loops_const_check = 5;
+static const int mc_num_loops_const_check = 3;
 static volatile int mc_left_motor_error_history[mc_num_loops_const_check] = {};
 static volatile int mc_right_motor_error_history[mc_num_loops_const_check] = {};
 static volatile int mc_motor_history_error_idx = 0;

@@ -35,6 +35,7 @@ class PID
     void print_components(); //This function prints the individual components of the control signal and can be used for debugging
     void setMax(float  newMax); //This function sets the maximum output the controller can ask for
     void setDebug(bool state); //This function sets the debug flag;
+    void setSerialPlot(bool state); // This function hijacks debug flag to send plot information to Serial
 
   /* Private functions and variables are defined here. These functions / variables cannot be accessed from outside the class.
    * For example, if we try to set the value of Kp in the file "Romi.h", we will get an error (Try it out!) 
