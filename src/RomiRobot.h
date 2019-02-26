@@ -3,10 +3,10 @@
 
 #include <Arduino.h>
 #include "MotorController.h"
+#include "LineSensor.h"
 
 static bool romi_initialised = false;
 static bool romi_debug = false;
-
 
 // Pose of Romi
 static float romi_loc_x = 0;
@@ -17,6 +17,9 @@ static float romi_loc_theta = 0;
 static float wheel_radius = 35;
 static float base_width = 140;
 
+// Sensors
+static LineSensor lsensor;
+
 // Miscellaneous
 static const byte LED_Yellow_Pin = 13;
 static const byte Button_A_Pin = 14;
@@ -24,6 +27,10 @@ static const byte Button_B_Pin = 30;
 static const byte Button_C_Pin = 17;
 
 void RomiInit(int debug);
+
+// Specific Task Functionality
+void RomiMoveForwardFindLine(); //Todo
+void RomiFollowLine(); //Todo
 
 // Functionality
 void RomiMoveDistance(float millimeters);
@@ -35,6 +42,7 @@ bool RomiGoHome(float x=0, float y=0);
 void RomiPrintState();
 bool RomiWaitUntilButtonAPressed();
 byte RomiWhichButtonPressed();
+void RomiBuzzBuzzer(int n_times); //Todo
 
 
 #endif

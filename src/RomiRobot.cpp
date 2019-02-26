@@ -27,7 +27,7 @@ void RomiMoveDistance(float millimeters) {
     float left_motor_dist = mcGetDistanceLeft();
     float right_motor_dist = mcGetDistanceRight();
     float dist_travelled = (left_motor_dist + right_motor_dist)/2;
-     Serial.print(dist);
+    Serial.print(dist_travelled);
 
     // Update State
     romi_loc_x += dist_travelled * cos(romi_loc_theta);
