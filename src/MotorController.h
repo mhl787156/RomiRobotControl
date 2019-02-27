@@ -13,7 +13,7 @@ static float mc_wheel_radius = 0;
 static int mc_counts_per_wheel_revolution = 0;
 static float mc_encoder_step = 0;
 
-static float mc_max_motor_speed = 100;
+static float mc_max_motor_speed = 80;
 static int mc_motor_dead_zone = 5;
 static float lki, lkp, lkd = 0.0;
 static float rki, rkp, rkd = 0.0;
@@ -38,9 +38,9 @@ void mcSetPIDGains(float _lkp, float _lki, float _lkd, float _rkp, float _rki, f
 void mcSetDebug(bool _debug);
 
 // functions 
-bool mcMoveDistance(float dist); // Millimeters
-bool mcRotateLeft(float deg); // Degrees
-bool mcStopMotors();
+bool mcMoveDistance(float dist); // Millimeters using position pid of both left and right
+bool mcRotateLeft(float deg); // Degrees using position pid of both left and right
+bool mcStopMotors(); 
 bool mcIsMoving();
 void mcWaitDelayMoving(int dly);
 float mcGetDistanceLeft();

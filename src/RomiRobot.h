@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include "MotorController.h"
 #include "LineSensor.h"
+#include "PBuzzer.h"
 
 static bool romi_initialised = false;
 static bool romi_debug = false;
@@ -21,6 +22,7 @@ static float base_width = 140;
 static LineSensor lsensor;
 
 // Miscellaneous
+static PololuBuzzer buzzer;
 static const byte LED_Yellow_Pin = 13;
 static const byte Button_A_Pin = 14;
 static const byte Button_B_Pin = 30;
@@ -29,10 +31,11 @@ static const byte Button_C_Pin = 17;
 void RomiInit(int debug);
 
 // Specific Task Functionality
-void RomiMoveForwardFindLine(); //Todo
+bool RomiMoveForwardFindLine(float max_dist_millimeters); //Todo
 void RomiFollowLine(); //Todo
 
 // Functionality
+void RomiUpdateStateUsingICR(float left_motor_dist, float right_motor_dist);
 void RomiMoveDistance(float millimeters);
 void RomiRotateLeft(float deg);
 bool RomiNavigateTo(float x, float y);
@@ -42,7 +45,7 @@ bool RomiGoHome(float x=0, float y=0);
 void RomiPrintState();
 bool RomiWaitUntilButtonAPressed();
 byte RomiWhichButtonPressed();
-void RomiBuzzBuzzer(int n_times); //Todo
+void RomiBuzzBuzzer(int tune); 
 
 
 #endif

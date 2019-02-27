@@ -19,6 +19,25 @@ void RomiInit(int debug) {
     romi_initialised = true;
 }
 
+void RomiUpdateStateUsingICR(float left_motor_dist, float right_motor_dist) {
+    float time_step = 1;
+    float diff = right_motor_dist - left_motor_dist;
+    float summ = right_motor_dist + left_motor_dist;
+    float R = (base_width / 2) * (diff / summ);
+    float wdt = diff * time_step / base_width;
+    float ICCx = romi_loc_x - R * sin(romi_loc_theta);
+    float ICCy = romi_loc_y - R * cos(romi_loc_theta);
+
+    romi_loc_x = cos(wdt)*(romi_loc_x - ICCx) - sin(wdt)*(romi_loc_y - ICCy) + ICCx;
+    romi_loc_y = sin(wdt)*(romi_loc_x - ICCx) + cos(wdt)*(romi_loc_y - ICCy) + ICCy;
+    romi_loc_theta += wdt;
+
+    if(romi_debug) {
+        Serial.print("ICR -> ");
+        RomiPrintState();
+    }
+}
+
 void RomiMoveDistance(float millimeters) {
 
     // Move the motors
@@ -90,8 +109,6 @@ bool RomiGoHome(float x=0, float y=0) {
     Serial.println("HOME");
 }
 
-
-
 void RomiPrintState() {
     Serial.print("x: ");
     Serial.print(romi_loc_x);
@@ -124,4 +141,32 @@ byte RomiWhichButtonPressed() {
         output = 1; digitalWrite(Button_A_Pin, HIGH);
     } 
     return output;
+}
+
+void RomiBuzzBuzzer(int tune) {
+    switch(tune) {
+        case 0: buzzer.play("!L16 V8 cdefgab>cbagfedc"); break;
+        case 1: buzzer.play("!T240 L8 agafaea dac+adaea fa<aa<bac#a dac#adaea f4"); break;
+        case 2: buzzer.play("!V8 c<a-<f");break; //failure
+        default: buzzer.play("c");
+    }
+}
+
+bool RomiMoveForwardFindLine(float max_dist_millimeters) {
+    bool foundLine = false;
+    mcMoveDistance(max_dist_millimeters);
+    while(mcIsMoving()) {
+
+        if(lsensor.allOnLine()) {
+            mcStopMotors();
+            RomiBuzzBuzzer(0);
+            foundLine = true;
+        }
+        delay(50);
+    }
+    float left_motor_dist = mcGetDistanceLeft();
+    float right_motor_dist = mcGetDistanceRight();
+    RomiUpdateStateUsingICR(left_motor_dist, right_motor_dist);
+    if(!foundLine){RomiBuzzBuzzer(2);}
+    return foundLine;
 }

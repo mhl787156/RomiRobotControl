@@ -38,6 +38,15 @@ bool LineSensor::calibrate() {
     return true;
 }
 
+void LineSensor::printSensors() {
+    Triplet<float> pin = readSensors();
+    Serial.print(pin.x);
+    Serial.print(" ");
+    Serial.print(pin.y);
+    Serial.print(" ");
+    Serial.println(pin.z);
+}
+
 // Reads the sensors
 Triplet<float> LineSensor::readSensors() {
     float lpin = analogRead(right_pin); // right

@@ -14,6 +14,7 @@ class LineSensor {
         bool allOnLine(); // Returns true if all sensors read a line
 
         float lineSensorError(); // Returns Ir - Il as error signal;
+        void printSensors();
 
 
     private:
