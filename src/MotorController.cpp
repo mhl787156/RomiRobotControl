@@ -17,8 +17,14 @@ void mcMotorControllerInit(float wheel_radius){
     left_encoder_pid.setMax(mc_max_motor_speed);
     right_encoder_pid.setMax(mc_max_motor_speed);
 
-    // Initialise Motor Control Loop timer at 20 Hz
-    initTimer3(20); 
+    left_velocity_pid.setMax(mc_max_motor_speed);
+    right_velocity_pid.setMax(mc_max_motor_speed);
+
+    // Initialise Motor Control Loop timer at 10 Hz
+    // initTimer3(10);
+
+    // Initialise Velocity Control Loop timer at 40 Hz 
+    // initTimer1(25);
 }
 
 void mcSetPIDGains(float _lkp, float _lki, float _lkd, float _rkp, float _rki, float _rkd) {
@@ -29,9 +35,11 @@ void mcSetPIDGains(float _lkp, float _lki, float _lkd, float _rkp, float _rki, f
 }
 
 void mcSetDebug(bool _debug) {
-    mc_debug = _debug;
-    left_encoder_pid.setDebug(_debug);
-    right_encoder_pid.setDebug(_debug);
+    // mc_debug = _debug;
+    // left_encoder_pid.setDebug(_debug);
+    // right_encoder_pid.setDebug(_debug);
+    // left_velocity_pid.setDebug(_debug);
+    // right_velocity_pid.setDebug(_debug);
 }
 
 
@@ -57,17 +65,11 @@ bool mcStopMotors(){
 
 // Get Final Counts and translate into distance moved
 float mcGetDistanceLeft() {
-    cli();
-    float v = (mc_left_encoder_target_count - mc_left_error) * mc_encoder_step;
-    sei();
-    return v;
+    return eGetLeftEncoderCount() * mc_encoder_step;
 }
 
 float mcGetDistanceRight(){
-    cli();
-    float v = (mc_right_encoder_target_count - mc_right_error) * mc_encoder_step;
-    sei();
-    return v;
+    return eGetRightEncoderCount() * mc_encoder_step;
 }
 
 // Is Robot Moving
@@ -88,8 +90,6 @@ void _mcResetCounters(long left = 0, long right = 0) {
     mc_right_encoder_target_count = right;
     left_encoder_pid.reset();
     right_encoder_pid.reset();
-    mc_left_error = 0;
-    mc_right_error = 0;
     mc_left_mvmt_start_time = curr_time;
     mc_right_mvmt_start_time = curr_time;
     sei();
@@ -119,8 +119,8 @@ bool mcMotorControlLoop() {
         // Read Encoder Counts
         long left_count = eGetLeftEncoderCount();
         long right_count = eGetRightEncoderCount();
-        mc_right_error = mc_right_encoder_target_count - right_count;
-        mc_left_error = mc_left_encoder_target_count - left_count;
+        int mc_right_error = mc_right_encoder_target_count - right_count;
+        int mc_left_error = mc_left_encoder_target_count - left_count;
 
         // PID update
         float pid_class_left_vel = left_encoder_pid.update(mc_left_error);
@@ -145,4 +145,58 @@ ISR( TIMER3_COMPA_vect ) {
     if (mcMotorControlLoop()) {
         // Run Function which runs next function....
     }
+}
+
+
+///////////////////////////////// Velocty Functionality
+
+void mcSetVelocityPIDGains(float _lkp, float _lki, float _lkd, float _rkp, float _rki, float _rkd) {
+    left_velocity_pid.setGains(_lkp, _lkd, _lki);
+    right_velocity_pid.setGains(_rkp, _rkd, _rki);
+}
+
+void mcSetVelocity(float velocity) { // in mm/s
+    float counts_per_sec = velocity / mc_encoder_step;
+    mcSetVelocityCounts(counts_per_sec);
+}
+
+void mcSetVelocityCounts(float counts_per_sec) { // in counts/s
+    cli();
+    mc_left_velocity_target = counts_per_sec / 2;
+    mc_right_velocity_target = counts_per_sec;
+    sei();
+}
+
+void mcSetVelocityDelta(float velocityDelta) {
+    float delta_cps = velocityDelta / mc_encoder_step;
+    cli();
+    mc_right_velocity_target += delta_cps;
+    mc_left_velocity_target -= (delta_cps/2);
+    sei();
+}
+
+ISR( TIMER1_COMPA_vect) {
+    mcVelocityControlLoop();
+}
+
+void mcVelocityControlLoop() {
+    float left_velocity = eGetLeftTickSpeed();
+    float right_velocity = eGetRightTickSpeed();
+    float left_error = mc_left_velocity_target - left_velocity;
+    float right_error = mc_right_velocity_target - right_velocity;
+
+    float control_left_motor = left_velocity_pid.update(left_error);
+    float control_right_motor = right_velocity_pid.update(right_error);
+
+    mc_control_left = control_left_motor;
+    mc_control_right = control_right_motor;
+
+    mSetMotors(control_left_motor, control_right_motor);
+}
+
+float mcGetControlRight() {
+    cli();
+    float s = mc_control_right;
+    sei();
+    return s;
 }

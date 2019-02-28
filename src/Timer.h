@@ -6,5 +6,6 @@
 static int hztobitnumbers(int hz);
 static float bitnumbertoprescale(int bitnumber); 
 
+void initTimer1(int);
 void initTimer3(int);
 #endif

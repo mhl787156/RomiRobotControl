@@ -10,18 +10,12 @@ void eCheckLeftEncoder() {
                      (e_old_left_A << 1) | e_old_left_B;
     if (state == 1 || state == 7 || state == 8 || state == 14) {
         e_count_left--; // Moving Backwards
+        e_left_tick_counter--; // Counter for count velocity
     } else if (state == 2 || state == 4 || state == 11 || state == 13) {
         e_count_left++; // Moving Forwards
+        e_left_tick_counter++; // Counter for count velocity
     }
-
-    // Check Speed
-    long curr_micros = micros();
-    long duration_since_last = (curr_micros - e_left_prev_micros);
-    e_left_speeds[e_left_speed_idx] = 1e6/duration_since_last; //Convert to ticks per second
-    e_left_prev_micros = curr_micros;
-    e_left_speed_idx = (e_left_speed_idx+1)%e_num_speed_history;
-
-    e_old_left_A = new_A;
+    
     e_old_left_B = new_B;
 }
 
@@ -34,16 +28,11 @@ void eCheckRightEncoder() {
                      (e_old_right_A << 1) | e_old_right_B;
     if (state == 1 || state == 7 || state == 8 || state == 14) {
         e_count_right--; // Moving Backwards
+        e_right_tick_counter--; // Counter for count velocity
     } else if (state == 2 || state == 4 || state == 11 || state == 13) {
         e_count_right++; // Moving Forwards
+        e_right_tick_counter++; // Counter for count velocity
     }
-
-    // Check Speed
-    long curr_micros = micros();
-    long duration_since_last = curr_micros - e_right_prev_micros;
-    e_right_speeds[e_right_speed_idx] = 1e6/duration_since_last; //Convert to t/s
-    e_right_prev_micros = curr_micros;
-    e_right_speed_idx = (e_right_speed_idx+1)%e_num_speed_history;
 
     e_old_right_A = new_A;
     e_old_right_B = new_B;
@@ -106,9 +95,25 @@ long eGetLeftEncoderCount() {
     return c;
 }
 
+long eGetLeftEncoderCountAndReset() {
+    cli();
+    long c = e_count_left;
+    e_count_left = 0;
+    sei();
+    return c;
+}
+
 long eGetRightEncoderCount() {
     cli();
     long c = e_count_right;
+    sei();
+    return c;
+}
+
+long eGetRightEncoderCountAndReset() {
+    cli();
+    long c = e_count_right;
+    e_count_left = 0;
     sei();
     return c;
 }
@@ -121,21 +126,23 @@ long eResetEncoderCount() {
 }
 
 float eGetLeftTickSpeed() {
+    long curr_micros = micros();
+    long time_past = curr_micros - e_left_prev_micros;
     cli();
-    float s = 0;
-    for(int i = 0; i < e_num_speed_history; i++) {
-        s += e_left_speeds[i];
-    }
+    int s = e_left_tick_counter;
+    e_left_tick_counter = 0;
     sei();
-    return s/e_num_speed_history;
+    e_left_prev_micros = curr_micros;
+    return (s * 1e6) / time_past;
 }
 
-float getRightTickSpeed() {
+float eGetRightTickSpeed() {
+    long curr_micros = micros();
+    long time_past = curr_micros - e_right_prev_micros;
     cli();
-    float s = 0;
-    for(int i = 0; i < e_num_speed_history; i++) {
-        s += e_right_speeds[i];
-    }
+    int s = e_right_tick_counter;
+    e_right_tick_counter = 0;
     sei();
-    return s/e_num_speed_history;
+    e_right_prev_micros = curr_micros;
+    return (s * 1e6)/time_past;
 }

@@ -20,13 +20,10 @@ static volatile long e_count_left;
 static volatile long e_count_right;
 
 // Encoder Speed
-static volatile unsigned long e_left_prev_micros = micros();
-static volatile unsigned long e_right_prev_micros = micros();
-static const int e_num_speed_history = 5;
-static volatile float e_left_speeds[e_num_speed_history] = {} ; // ticks p sec
-static volatile float e_right_speeds[e_num_speed_history] = {};
-static volatile int e_left_speed_idx = 0;
-static volatile int e_right_speed_idx = 0;
+static unsigned long e_left_prev_micros = micros();
+static unsigned long e_right_prev_micros = micros();
+static volatile int e_left_tick_counter = 0;
+static volatile int e_right_tick_counter = 0;
 
 // Interrupt Functions
 void eCheckLeftEncoder();
@@ -39,7 +36,9 @@ void eRightEncoderInterruptSetup();
 
 // Volatile Getters and Setters
 long eGetLeftEncoderCount();
+long eGetLeftEncoderCountAndReset();
 long eGetRightEncoderCount();
+long eGetRightEncoderCountAndReset();
 long eResetEncoderCount();
 float eGetLeftTickSpeed(); //instantaneous velocity
 float eGetRightTickSpeed();

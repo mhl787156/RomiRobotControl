@@ -5,7 +5,7 @@
 #define DEBUG 1 // Off:0, Robot MEssages Only: 1 // Low Level PID Messages: 2
 
 
-void setup()
+void setup_()
 {
 	Serial.begin(BAUD_RATE);
     delay(5000);
@@ -30,7 +30,7 @@ void testMovement2() {
     RomiGoHome();
 }
 
-void loop()
+void loop_()
 {   
     lsensor.printSensors();
     byte button = RomiWhichButtonPressed();

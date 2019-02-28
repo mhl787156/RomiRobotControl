@@ -91,7 +91,7 @@ float PID::update(float error)
   if (debug)
   {
     Serial.print("Error: ");
-    Serial.print(error);
+    Serial.print(integral_error);
     Serial.print(" Delta: ");
     Serial.print(error_delta);
     print_components();
