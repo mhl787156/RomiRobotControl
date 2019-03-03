@@ -13,7 +13,7 @@ static float mc_wheel_radius = 0;
 static int mc_counts_per_wheel_revolution = 0;
 static float mc_encoder_step = 0;
 
-static float mc_max_motor_speed = 150;
+static float mc_max_motor_speed = 100;
 static int mc_motor_dead_zone = 5;
 static float lki, lkp, lkd = 0.0;
 static float rki, rkp, rkd = 0.0;
@@ -52,6 +52,8 @@ void mcSetDebug(bool _debug);
 // Distance Since Last Getters
 float mcGetDistanceLeft();
 float mcGetDistanceRight();
+float mcGetDistanceLeftAndReset();
+float mcGetDistanceRightAndReset();
 
 // Generic functions
 bool mcStopMotors(); 
@@ -67,7 +69,7 @@ void _mcResetCounters(long left, long right);
 // velocity functions
 void mcSetVelocity(float velocity); // in mm/s
 void mcSetVelocityCounts(float counts_per_sec); // in counts/s
-void mcSetVelocityDelta(float velocityDelta);
+void mcSetVelocityDelta(float velocity, float velocityDelta);
 
 
 // interrupt function

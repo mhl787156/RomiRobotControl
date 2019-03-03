@@ -5,6 +5,7 @@
 #include "MotorController.h"
 #include "LineSensor.h"
 #include "PBuzzer.h"
+#include "PIDController.h"
 
 static bool romi_initialised = false;
 static bool romi_debug = false;
@@ -20,6 +21,8 @@ static float base_width = 140;
 
 // Sensors
 static LineSensor lsensor;
+static const byte lsensor_heading_delta_max = 150;
+static PID lsensor_heading_pid(0.5,0,0);
 
 // Miscellaneous
 static PololuBuzzer buzzer;
@@ -40,9 +43,11 @@ void RomiMoveDistance(float millimeters);
 void RomiRotateLeft(float deg);
 bool RomiNavigateTo(float x, float y);
 bool RomiGoHome(float x=0, float y=0);
+void RomiVelocityStop();
 
 // Helper Functions
 void RomiPrintState();
+void RomiPrintSensors();
 bool RomiWaitUntilButtonAPressed();
 byte RomiWhichButtonPressed();
 void RomiBuzzBuzzer(int tune); 

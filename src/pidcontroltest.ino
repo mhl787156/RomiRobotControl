@@ -5,7 +5,7 @@
 #define DEBUG 1 // Off:0, Robot MEssages Only: 1 // Low Level PID Messages: 2
 
 
-void setup()
+void setup_()
 {
 	Serial.begin(BAUD_RATE);
     delay(3000);
@@ -16,54 +16,48 @@ void setup()
 }
 
 
-void loop()
+void loop_()
 {   
-    mcSetVelocity( 2 * PI * 35);
+    mcSetVelocity(PI * 35);
     
     for(int i = 0; i < 200; i++) {
         mcVelocityControlLoop();
         delay(10);
     }
 
-    for(int j = 0; j < 5; j++) {
-        mcSetVelocityDelta(j*5);
-        for(int i = 0; i < 50; i++) {
+    // for(int j = 0; j < 5; j++) {
+    //     mcSetVelocityDelta(j*5);
+    //     for(int i = 0; i < 50; i++) {
          
-            mcVelocityControlLoop();
-            delay(10);
-        }
-    }
+    //         mcVelocityControlLoop();
+    //         delay(10);
+    //     }
+    // }
     
-    for(int j = 0; j < 5; j++) {
-        mcSetVelocityDelta(-j*5);
-        for(int i = 0; i < 50; i++) {
+    // for(int j = 0; j < 5; j++) {
+    //     mcSetVelocityDelta(-j*5);
+    //     for(int i = 0; i < 50; i++) {
          
-            mcVelocityControlLoop();
-            delay(10);
-        }
-    }
+    //         mcVelocityControlLoop();
+    //         delay(10);
+    //     }
+    // }
     
-    for(int j = 0; j < 5; j++) {
-        mcSetVelocityDelta(-j*5);
-        for(int i = 0; i < 50; i++) {
+    // for(int j = 0; j < 5; j++) {
+    //     mcSetVelocityDelta(-j*5);
+    //     for(int i = 0; i < 50; i++) {
          
-            mcVelocityControlLoop();
-            delay(10);
-        }
-    }
+    //         mcVelocityControlLoop();
+    //         delay(10);
+    //     }
+    // }
 
-    for(int j = 0; j < 5; j++) {
-        mcSetVelocityDelta(j*5);
-        for(int i = 0; i < 50; i++) {
+    // for(int j = 0; j < 5; j++) {
+    //     mcSetVelocityDelta(j*5);
+    //     for(int i = 0; i < 50; i++) {
          
-            mcVelocityControlLoop();
-            delay(10);
-        }
-    }
-
-    mcSetVelocity(0);
-    for(int i = 0; i < 400; i++) {
-        mcVelocityControlLoop();
-        delay(10);
-    }
+    //         mcVelocityControlLoop();
+    //         delay(10);
+    //     }
+    // }
 }

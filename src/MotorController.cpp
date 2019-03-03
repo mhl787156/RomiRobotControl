@@ -13,18 +13,18 @@ void mcMotorControllerInit(float wheel_radius){
     mc_encoder_step = (2 * PI * mc_wheel_radius) / mc_counts_per_wheel_revolution;
 
     // Set PIDs
-    mcSetPIDGains(0.5, 0, 13, 0.5, 0, 14); // Pre found values
+    // mcSetPIDGains(0.5, 0, 13, 0.5, 0, 14); // Pre found values 0.5, 0, 13, 0.5, 0, 14
     left_encoder_pid.setMax(mc_max_motor_speed);
     right_encoder_pid.setMax(mc_max_motor_speed);
 
     left_velocity_pid.setMax(mc_max_motor_speed);
     right_velocity_pid.setMax(mc_max_motor_speed);
 
-    // Initialise Motor Control Loop timer at 10 Hz
-    // initTimer3(10);
+    // Initialise Motor Control Loop timer at 20 Hz
+    initTimer3(20);
 
     // Initialise Velocity Control Loop timer at 40 Hz 
-    // initTimer1(25);
+    // initTimer1(100); // Does Not work
 }
 
 void mcSetPIDGains(float _lkp, float _lki, float _lkd, float _rkp, float _rki, float _rkd) {
@@ -35,9 +35,9 @@ void mcSetPIDGains(float _lkp, float _lki, float _lkd, float _rkp, float _rki, f
 }
 
 void mcSetDebug(bool _debug) {
-    // mc_debug = _debug;
-    // left_encoder_pid.setDebug(_debug);
-    // right_encoder_pid.setDebug(_debug);
+    mc_debug = _debug;
+    left_encoder_pid.setDebug(_debug);
+    right_encoder_pid.setDebug(_debug);
     // left_velocity_pid.setDebug(_debug);
     // right_velocity_pid.setDebug(_debug);
 }
@@ -63,13 +63,23 @@ bool mcStopMotors(){
     return true;
 }
 
+float right_left_ratio = 2;
+
 // Get Final Counts and translate into distance moved
 float mcGetDistanceLeft() {
-    return eGetLeftEncoderCount() * mc_encoder_step;
+    return eGetLeftEncoderCount() * mc_encoder_step*right_left_ratio;
 }
 
 float mcGetDistanceRight(){
     return eGetRightEncoderCount() * mc_encoder_step;
+}
+
+float mcGetDistanceLeftAndReset() {
+    return eGetLeftEncoderCountAndReset() * mc_encoder_step*right_left_ratio;
+}
+
+float mcGetDistanceRightAndReset() {
+    return eGetRightEncoderCountAndReset() * mc_encoder_step;
 }
 
 // Is Robot Moving
@@ -86,8 +96,8 @@ void mcWaitDelayMoving(int dly) {
 void _mcResetCounters(long left = 0, long right = 0) {
     unsigned long curr_time = millis();
     cli();
-    mc_left_encoder_target_count = left;
-    mc_right_encoder_target_count = right;
+    mc_left_encoder_target_count = left/right_left_ratio;
+    mc_right_encoder_target_count = right; // encoders count at different rates...
     left_encoder_pid.reset();
     right_encoder_pid.reset();
     mc_left_mvmt_start_time = curr_time;
@@ -119,8 +129,8 @@ bool mcMotorControlLoop() {
         // Read Encoder Counts
         long left_count = eGetLeftEncoderCount();
         long right_count = eGetRightEncoderCount();
-        int mc_right_error = mc_right_encoder_target_count - right_count;
-        int mc_left_error = mc_left_encoder_target_count - left_count;
+        int mc_left_error = (mc_left_encoder_target_count - left_count);
+        int mc_right_error = (mc_right_encoder_target_count - right_count);
 
         // PID update
         float pid_class_left_vel = left_encoder_pid.update(mc_left_error);
@@ -162,21 +172,18 @@ void mcSetVelocity(float velocity) { // in mm/s
 
 void mcSetVelocityCounts(float counts_per_sec) { // in counts/s
     cli();
-    mc_left_velocity_target = counts_per_sec / 2;
+    mc_left_velocity_target = counts_per_sec / 1.9;
     mc_right_velocity_target = counts_per_sec;
     sei();
 }
 
-void mcSetVelocityDelta(float velocityDelta) {
+void mcSetVelocityDelta(float velocity, float velocityDelta) { // in mm/s
+    float counts_per_sec = velocity / mc_encoder_step;
     float delta_cps = velocityDelta / mc_encoder_step;
     cli();
-    mc_right_velocity_target += delta_cps;
-    mc_left_velocity_target -= (delta_cps/2);
+    mc_right_velocity_target = counts_per_sec + delta_cps;
+    mc_left_velocity_target = (counts_per_sec - delta_cps)/2;
     sei();
-}
-
-ISR( TIMER1_COMPA_vect) {
-    mcVelocityControlLoop();
 }
 
 void mcVelocityControlLoop() {

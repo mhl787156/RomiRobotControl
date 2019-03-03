@@ -2,10 +2,10 @@
 #include "RomiRobot.h"
 
 #define BAUD_RATE 9600
-#define DEBUG 1 // Off:0, Robot MEssages Only: 1 // Low Level PID Messages: 2
+#define DEBUG 2 // Off:0, Robot MEssages Only: 1 // Low Level PID Messages: 2
 
 
-void setup_()
+void setup()
 {
 	Serial.begin(BAUD_RATE);
     delay(5000);
@@ -30,20 +30,29 @@ void testMovement2() {
     RomiGoHome();
 }
 
-void loop_()
+void development1() {
+    RomiBuzzBuzzer(3);
+    RomiMoveForwardFindLine(1000);
+    delay(1000);
+    RomiRotateLeft(-30);
+    delay(1000);
+    RomiFollowLine();
+}
+
+void loop()
 {   
-    lsensor.printSensors();
     byte button = RomiWhichButtonPressed();
     if(button != 0){delay(1000);}
     if(button == 1) {
-        RomiMoveForwardFindLine(1000);
+        // development1();
+        RomiMoveDistance(1000);
     
     } else if(button == 2) {
-
+        RomiBuzzBuzzer(3);
+        RomiFollowLine();
 
     } else if (button == 3) {
-
-
+        RomiRotateLeft(-90);
     }
 
     if(button != 0 && DEBUG > 0) {
