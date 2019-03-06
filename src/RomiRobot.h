@@ -32,10 +32,12 @@ static const byte Button_B_Pin = 30;
 static const byte Button_C_Pin = 17;
 
 void RomiInit(int debug);
+void RomiResetState();
 
 // Specific Task Functionality
 bool RomiMoveForwardFindLine(float max_dist_millimeters); //Todo
-void RomiFollowLine(); //Todo
+void RomiFollowLine(bool endfind=true); //Todo
+void RomiICRDebug();
 
 // Functionality
 void RomiUpdateStateUsingICR(float left_motor_dist, float right_motor_dist);
@@ -43,6 +45,7 @@ void RomiMoveDistance(float millimeters);
 void RomiRotateLeft(float deg);
 bool RomiNavigateTo(float x, float y);
 bool RomiGoHome(float x=0, float y=0);
+void RomiVelocityGo();
 void RomiVelocityStop();
 
 // Helper Functions

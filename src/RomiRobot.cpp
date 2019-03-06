@@ -1,5 +1,6 @@
 #import "RomiRobot.h"
-
+#import "utils.h"
+#define PRINT(x) Serial.print(x, 4); Serial.print(" ");
 
 void RomiInit(int debug) {
 
@@ -23,25 +24,59 @@ void RomiInit(int debug) {
     romi_initialised = true;
 }
 
+void RomiResetState() {
+    romi_loc_x = 0;
+    romi_loc_y = 0;
+    romi_loc_theta = 0;
+}
 /*
 
 Romi Motion and State Updates
 
 */
+void RomiICRDebug() {
+    while(true) {
+        float left_motor_dist = mcGetDistanceLeftAndReset();
+        float right_motor_dist = mcGetDistanceRightAndReset();
+        // Update time step TODO
+        RomiUpdateStateUsingICR(left_motor_dist, right_motor_dist);
+        delay(100);
+    }
+}
+
 void RomiUpdateStateUsingICR(float left_motor_dist, float right_motor_dist) {
-    float time_step = 1;
     float diff = right_motor_dist - left_motor_dist;
     float summ = right_motor_dist + left_motor_dist;
-    float R = (base_width / 2) * (diff / summ);
-    float wdt = diff * time_step / base_width;
-    float ICCx = romi_loc_x - R * sin(romi_loc_theta);
-    float ICCy = romi_loc_y - R * cos(romi_loc_theta);
 
-    romi_loc_x = cos(wdt)*(romi_loc_x - ICCx) - sin(wdt)*(romi_loc_y - ICCy) + ICCx;
-    romi_loc_y = sin(wdt)*(romi_loc_x - ICCx) + cos(wdt)*(romi_loc_y - ICCy) + ICCy;
-    romi_loc_theta += wdt;
+    if(abs(diff) < 1e-6) { // Forward Motion
+        float dist_travelled = (left_motor_dist + right_motor_dist)/2;
+        romi_loc_x += dist_travelled * cos(romi_loc_theta);
+        romi_loc_y += dist_travelled * sin(romi_loc_theta);
+    } else if (abs(summ) < 1e-6) { // On spot
+        float update = (right_motor_dist - left_motor_dist)/base_width;
+        romi_loc_theta += update;
+    } else { // Use ICC
+
+        float R = (base_width / 2) * (summ / diff);
+        float wdt = diff / base_width; // time_step from ms to s
+        float ICCx = romi_loc_x - R * sin(romi_loc_theta);
+        float ICCy = romi_loc_y + R * cos(romi_loc_theta);
+
+        romi_loc_x = cos(wdt)*(romi_loc_x - ICCx) - sin(wdt)*(romi_loc_y - ICCy) + ICCx;
+        romi_loc_y = sin(wdt)*(romi_loc_x - ICCx) + cos(wdt)*(romi_loc_y - ICCy) + ICCy;
+        romi_loc_theta += wdt;
+
+        if(romi_debug) {
+        PRINT(R);
+        PRINT(wdt * 180 / PI);
+        }
+    }
+    romi_loc_theta = abs(romi_loc_theta) > 2 * PI ? romi_loc_theta - sign(romi_loc_theta) * 2 * PI : romi_loc_theta;
 
     if(romi_debug) {
+        PRINT(left_motor_dist);
+        PRINT(right_motor_dist);
+        Serial.println(" ");
         Serial.print("ICR -> ");
         RomiPrintState();
     }
@@ -54,34 +89,16 @@ void RomiMoveDistance(float millimeters) {
     mcWaitDelayMoving(10);
     float left_motor_dist = mcGetDistanceLeft();
     float right_motor_dist = mcGetDistanceRight();
-    float dist_travelled = (left_motor_dist + right_motor_dist)/2;
-
-    // Update State
-    romi_loc_x += dist_travelled * cos(romi_loc_theta);
-    romi_loc_y += dist_travelled * sin(romi_loc_theta);
-    
-    if(romi_debug) {
-        Serial.print("F -> ");
-        RomiPrintState();
-    }
+    RomiUpdateStateUsingICR(left_motor_dist, right_motor_dist);  
 }
 
 void RomiRotateLeft(float deg) {
-
     // Move the motors
     mcRotateLeft(deg);
     mcWaitDelayMoving(10);
     float left_motor_dist = mcGetDistanceLeft();
     float right_motor_dist = mcGetDistanceRight();
-
-    // Update State
-    float update = (right_motor_dist - left_motor_dist)/base_width;
-    romi_loc_theta += update * 180 / PI;
-    
-    if(romi_debug) {
-        Serial.print("R -> ");
-        RomiPrintState();
-    }
+    RomiUpdateStateUsingICR(left_motor_dist, right_motor_dist);
 }
 
 bool RomiNavigateTo(float x, float y){
@@ -96,7 +113,7 @@ bool RomiNavigateTo(float x, float y){
 
     // Calculate trajectory parameters
     float target_dist = sqrt( (dx*dx) + (dy*dy) );
-    float target_angle = atan2(dy, dx) * 360 / PI;
+    float target_angle = (atan2(dy, dx) - romi_loc_theta) * 180 / PI;
     
     Serial.print(target_dist);
     Serial.print(" ");
@@ -108,11 +125,12 @@ bool RomiNavigateTo(float x, float y){
 }
 
 bool RomiGoHome(float x=0, float y=0) {
+    Serial.println("Going Home!");
     // Go to specified home position
     RomiNavigateTo(x, y);
 
     // Straighten up
-    RomiRotateLeft(-romi_loc_theta);
+    RomiRotateLeft(-romi_loc_theta * PI / 180);
 
     Serial.println("HOME");
 }
@@ -127,31 +145,48 @@ bool RomiMoveForwardFindLine(float max_dist_millimeters) {
     bool foundLine = false;
     mcMoveDistance(max_dist_millimeters);
     while(mcIsMoving()) {
-
-        if(lsensor.allOnLine()) {
+        if(lsensor.anyOnLine()) {
             mcStopMotors();
             RomiBuzzBuzzer(0);
             foundLine = true;
         }
-        delay(50);
+        delay(10);
     }
-    float left_motor_dist = mcGetDistanceLeft();
-    float right_motor_dist = mcGetDistanceRight();
+    float left_motor_dist = mcGetDistanceLeftAndReset();
+    float right_motor_dist = mcGetDistanceRightAndReset();
     RomiUpdateStateUsingICR(left_motor_dist, right_motor_dist);
-    if(!foundLine){RomiBuzzBuzzer(2);}
+    if(!foundLine){RomiBuzzBuzzer(3);}
     return foundLine;
 }
 
-void RomiFollowLine() {
+void RomiFollowLine(bool endfind=true) {
+
+    byte state_update_loop = 1;
     float target_vel = PI * wheel_radius / 2;
     mcSetVelocity(target_vel); // Set Constant Velocity
 
+    byte state_update = 0;
     while (true) { // Update with end of line detection
+        
+        mcVelocityControlLoop();
+
+        if (state_update >= state_update_loop) {
+            float left_motor_dist = mcGetDistanceLeftAndReset();
+            float right_motor_dist = mcGetDistanceRightAndReset();
+            RomiUpdateStateUsingICR(left_motor_dist, right_motor_dist);
+            state_update = 0;
+        }
+        state_update++;
 
         // Check if reached angular section and try to find line again
-        if(!lsensor.anyOnLine()) {
+        if(!lsensor.anyOnLine() && endfind) {
             Serial.print("Reached CAP Searching...");
             RomiVelocityStop();
+
+            float left_motor_dist = mcGetDistanceLeftAndReset();
+            float right_motor_dist = mcGetDistanceRightAndReset();
+            RomiUpdateStateUsingICR(left_motor_dist, right_motor_dist);
+
             bool foundLine = false;
             // Rotate the motors
             for (int i = 0; i < 4; i++) {
@@ -170,45 +205,50 @@ void RomiFollowLine() {
                     }
                 }
 
-                // Update State
-                float left_motor_dist = mcGetDistanceLeft();
-                float right_motor_dist = mcGetDistanceRight();
-                float update = (right_motor_dist - left_motor_dist)/base_width;
-                romi_loc_theta += update * 180 / PI;
+                // Update State due to rotation
+                float left_motor_dist = mcGetDistanceLeftAndReset();
+                float right_motor_dist = mcGetDistanceRightAndReset();
+                RomiUpdateStateUsingICR(left_motor_dist, right_motor_dist);
+                
 
                 if (foundLine) {
-                    Serial.print("Line refound");
+                    Serial.println("Line refound");
                     break; // Continue following
                 }
             }
             if(!foundLine) {
-                Serial.print("End PATH");
+                Serial.println("End PATH");
                 break; // End of Path
             }
         }
 
-        mcVelocityControlLoop();
 
         float lsens_lr_error = lsensor.lineSensorError();
         float heading_ctrl = lsensor_heading_pid.update(lsens_lr_error);
-        mcSetVelocityDelta(target_vel, heading_ctrl);
+        mcSetVelocityDelta(target_vel, heading_ctrl);        
         
-        Serial.print(lsens_lr_error);
-        Serial.print(" ");
-        Serial.print(heading_ctrl);
-        Serial.println(" ");
-        
-        
-        float left_motor_dist = mcGetDistanceLeftAndReset();
-        float right_motor_dist = mcGetDistanceLeftAndReset();
-        RomiUpdateStateUsingICR(left_motor_dist, right_motor_dist);
 
         delay(8);
     }
 
     RomiVelocityStop();
 
-    RomiBuzzBuzzer(1);
+    RomiBuzzBuzzer(0);
+}
+
+void RomiVelocityGo() {
+    mcSetVelocity(PI * wheel_radius / 2);
+    while(true) {
+        mcVelocityControlLoop();
+        float left_motor_dist = mcGetDistanceLeftAndReset();
+        float right_motor_dist = mcGetDistanceRightAndReset();
+        PRINT(left_motor_dist);
+        PRINT(right_motor_dist);
+        PRINT(left_motor_dist / right_motor_dist);
+        Serial.println("");
+        RomiUpdateStateUsingICR(left_motor_dist, right_motor_dist);
+        delay(100);
+    }
 }
 
 void RomiVelocityStop() {
@@ -230,7 +270,7 @@ void RomiPrintState() {
     Serial.print(" y: ");
     Serial.print(romi_loc_y);
     Serial.print(" t: ");
-    Serial.println(romi_loc_theta);
+    Serial.println(romi_loc_theta * 180 / PI);
 }
 
 void RomiPrintSensors() {

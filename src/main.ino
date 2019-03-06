@@ -2,7 +2,7 @@
 #include "RomiRobot.h"
 
 #define BAUD_RATE 9600
-#define DEBUG 2 // Off:0, Robot MEssages Only: 1 // Low Level PID Messages: 2
+#define DEBUG 1 // Off:0, Robot MEssages Only: 1 // Low Level PID Messages: 2
 
 
 void setup()
@@ -29,14 +29,16 @@ void testMovement2() {
     RomiMoveDistance(1500);
     RomiGoHome();
 }
-
+// 
 void development1() {
     RomiBuzzBuzzer(3);
-    RomiMoveForwardFindLine(1000);
+    RomiResetState();
+    RomiMoveForwardFindLine(800);
     delay(1000);
     RomiRotateLeft(-30);
     delay(1000);
     RomiFollowLine();
+    RomiGoHome();
 }
 
 void loop()
@@ -44,15 +46,18 @@ void loop()
     byte button = RomiWhichButtonPressed();
     if(button != 0){delay(1000);}
     if(button == 1) {
-        // development1();
-        RomiMoveDistance(1000);
+        development1();
+        // RomiVelocityGo();
     
     } else if(button == 2) {
         RomiBuzzBuzzer(3);
+        RomiResetState();
         RomiFollowLine();
+        delay(1000);
+        RomiGoHome();
 
     } else if (button == 3) {
-        RomiRotateLeft(-90);
+        RomiNavigateTo(-100, -100);
     }
 
     if(button != 0 && DEBUG > 0) {

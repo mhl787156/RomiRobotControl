@@ -113,7 +113,7 @@ long eGetRightEncoderCount() {
 long eGetRightEncoderCountAndReset() {
     cli();
     long c = e_count_right;
-    e_count_left = 0;
+    e_count_right = 0;
     sei();
     return c;
 }

@@ -172,7 +172,7 @@ void mcSetVelocity(float velocity) { // in mm/s
 
 void mcSetVelocityCounts(float counts_per_sec) { // in counts/s
     cli();
-    mc_left_velocity_target = counts_per_sec / 1.9;
+    mc_left_velocity_target = counts_per_sec/ 2;
     mc_right_velocity_target = counts_per_sec;
     sei();
 }
