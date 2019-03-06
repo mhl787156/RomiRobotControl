@@ -307,14 +307,45 @@ byte RomiWhichButtonPressed() {
     return output;
 }
 
-void RomiBuzzBuzzer(int tune) {
-    switch(tune) {
-        case 0: buzzer.play("!L16 V8 cdefgab>cbagfedc"); break;
-        case 1: buzzer.play("!T240 L8 agafaea dac+adaea fa<aa<bac#a dac#adaea f4"); break;
-        case 2: buzzer.play("!V8 c<a-<f");break; //failure
-        case 3: buzzer.play("!L4 V8 dc");
-        default: buzzer.play("c");
+void __BuzzBuzzer(int duration, int del) {
+    long start_time = millis();
+    while(millis() - start_time < duration) {
+        digitalWrite(Buzzer_Pin, HIGH);
+        delay(del);
+        digitalWrite(Buzzer_Pin, LOW);
+        delay(del);
     }
 }
+
+void RomiBuzzBuzzer(int tune) {
+    // switch(tune) {
+    //     case 0: buzzer.play("!L16 V8 cdefgab>cbagfedc"); break;
+    //     case 1: buzzer.play("!T240 L8 agafaea dac+adaea fa<aa<bac#a dac#adaea f4"); break;
+    //     case 2: buzzer.play("!V8 c<a-<f");break; //failure
+    //     case 3: buzzer.play("!L4 V8 dc");
+    //     default: buzzer.play("c");
+    // }
+    switch(tune) {
+        case 0: __BuzzBuzzer(500, 1); break;
+        case 1: 
+            __BuzzBuzzer(500, 2); 
+            delay(100);
+            __BuzzBuzzer(500, 2); break;
+        case 2: 
+            __BuzzBuzzer(500, 1); 
+            __BuzzBuzzer(500, 3); 
+            break;
+        case 3:
+            __BuzzBuzzer(500, 1);
+            __BuzzBuzzer(500, 2);
+            __BuzzBuzzer(500, 3);
+            __BuzzBuzzer(500, 2);
+            __BuzzBuzzer(500, 1);
+            break;
+        default:
+            break;
+    }
+}
+
 
 

@@ -4,8 +4,8 @@
 #include <Arduino.h>
 #include "MotorController.h"
 #include "LineSensor.h"
-#include "PBuzzer.h"
 #include "PIDController.h"
+#include "RBuzzer.h"
 
 static bool romi_initialised = false;
 static bool romi_debug = false;
@@ -25,7 +25,9 @@ static const byte lsensor_heading_delta_max = 150;
 static PID lsensor_heading_pid(0.5,0,0);
 
 // Miscellaneous
-static PololuBuzzer buzzer;
+// static RBuzzer rbuzzer;
+// static PololuBuzzer buzzer;
+static const byte Buzzer_Pin = 6;
 static const byte LED_Yellow_Pin = 13;
 static const byte Button_A_Pin = 14;
 static const byte Button_B_Pin = 30;

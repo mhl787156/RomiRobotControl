@@ -30,8 +30,8 @@ void testMovement2() {
     RomiGoHome();
 }
 // 
-void development1() {
-    RomiBuzzBuzzer(3);
+void doTheCourse() {
+    RomiBuzzBuzzer(0);
     RomiResetState();
     RomiMoveForwardFindLine(800);
     delay(1000);
@@ -46,7 +46,7 @@ void loop()
     byte button = RomiWhichButtonPressed();
     if(button != 0){delay(1000);}
     if(button == 1) {
-        development1();
+        doTheCourse();
         // RomiVelocityGo();
     
     } else if(button == 2) {
@@ -57,7 +57,10 @@ void loop()
         RomiGoHome();
 
     } else if (button == 3) {
-        RomiNavigateTo(-100, -100);
+        RomiBuzzBuzzer(0);
+        RomiBuzzBuzzer(1);
+        RomiBuzzBuzzer(2);
+        RomiBuzzBuzzer(3);
     }
 
     if(button != 0 && DEBUG > 0) {
