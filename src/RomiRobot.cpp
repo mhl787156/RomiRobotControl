@@ -120,7 +120,7 @@ bool RomiNavigateTo(float x, float y){
     Serial.println(target_angle);
 
     // Move Parameters
-    RomiRotateLeft(target_angle);
+    RomiRotateLeft(target_angle - 5);
     RomiMoveDistance(target_dist);
 }
 
@@ -130,7 +130,7 @@ bool RomiGoHome(float x=0, float y=0) {
     RomiNavigateTo(x, y);
 
     // Straighten up
-    RomiRotateLeft(-romi_loc_theta * PI / 180);
+    // RomiRotateLeft(-romi_loc_theta * 180 / PI);
 
     Serial.println("HOME");
 }
@@ -147,7 +147,7 @@ bool RomiMoveForwardFindLine(float max_dist_millimeters) {
     while(mcIsMoving()) {
         if(lsensor.anyOnLine()) {
             mcStopMotors();
-            RomiBuzzBuzzer(0);
+            RomiBuzzBuzzer(2);
             foundLine = true;
         }
         delay(10);
@@ -155,7 +155,7 @@ bool RomiMoveForwardFindLine(float max_dist_millimeters) {
     float left_motor_dist = mcGetDistanceLeftAndReset();
     float right_motor_dist = mcGetDistanceRightAndReset();
     RomiUpdateStateUsingICR(left_motor_dist, right_motor_dist);
-    if(!foundLine){RomiBuzzBuzzer(3);}
+    if(!foundLine){RomiBuzzBuzzer(1);}
     return foundLine;
 }
 
@@ -233,7 +233,7 @@ void RomiFollowLine(bool endfind=true) {
 
     RomiVelocityStop();
 
-    RomiBuzzBuzzer(0);
+    RomiBuzzBuzzer(3);
 }
 
 void RomiVelocityGo() {
